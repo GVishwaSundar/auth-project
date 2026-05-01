@@ -3,9 +3,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-// ✅ RESEND (REPLACE NODEMAILER)
+// ✅ RESEND
 const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 // Google OAuth
 const { OAuth2Client } = require("google-auth-library");
@@ -75,7 +77,7 @@ exports.login = async (req, res) => {
 };
 
 
-// ================= FORGOT PASSWORD (🔥 FINAL FIX) =================
+// ================= FORGOT PASSWORD =================
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -85,7 +87,6 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      console.log("⚠️ User not found");
       return res.json({
         message: "If this email exists, a reset link has been sent",
       });
@@ -102,7 +103,13 @@ exports.forgotPassword = async (req, res) => {
 
     console.log("🔗 Reset Link:", resetLink);
 
-    // ✅ SEND EMAIL USING RESEND
+    // ❗ CHECK API KEY
+    if (!resend) {
+      console.log("❌ RESEND API KEY NOT FOUND");
+      return res.status(500).json({ error: "Email service not configured" });
+    }
+
+    // ✅ SEND EMAIL
     const response = await resend.emails.send({
       from: "onboarding@resend.dev",
       to: email,
