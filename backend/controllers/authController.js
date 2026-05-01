@@ -2,7 +2,10 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+
+// ✅ RESEND (REPLACE NODEMAILER)
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Google OAuth
 const { OAuth2Client } = require("google-auth-library");
@@ -10,26 +13,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Password regex
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-// ================= EMAIL TRANSPORTER (IMPROVED) =================
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // REQUIRED for production
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// Verify transporter (🔥 important for production)
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ EMAIL CONFIG ERROR:", error);
-  } else {
-    console.log("✅ Email server is ready");
-  }
-});
 
 
 // ================= SIGNUP =================
@@ -92,7 +75,7 @@ exports.login = async (req, res) => {
 };
 
 
-// ================= FORGOT PASSWORD (🔥 FIXED + DEBUG) =================
+// ================= FORGOT PASSWORD (🔥 FINAL FIX) =================
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -102,7 +85,7 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      console.log("⚠️ User not found (safe response)");
+      console.log("⚠️ User not found");
       return res.json({
         message: "If this email exists, a reset link has been sent",
       });
@@ -115,33 +98,30 @@ exports.forgotPassword = async (req, res) => {
 
     await user.save();
 
-    // ✅ PRODUCTION URL FIXED
     const resetLink = `https://auth-project-orcin.vercel.app/reset?token=${token}`;
 
     console.log("🔗 Reset Link:", resetLink);
 
-    // ✅ SEND EMAIL WITH FULL DEBUG
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    // ✅ SEND EMAIL USING RESEND
+    const response = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: email,
       subject: "Password Reset",
       html: `
         <h3>Password Reset</h3>
-        <p>Click the link below to reset your password:</p>
+        <p>Click below to reset your password:</p>
         <a href="${resetLink}">${resetLink}</a>
       `,
-    };
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("✅ EMAIL SENT:", info.response);
+    console.log("✅ EMAIL SENT:", response);
 
     res.json({
       message: "If this email exists, a reset link has been sent",
     });
 
   } catch (error) {
-    console.log("❌ EMAIL ERROR FULL:", error);
+    console.log("❌ EMAIL ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };
