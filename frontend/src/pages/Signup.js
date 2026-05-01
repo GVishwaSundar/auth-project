@@ -1,29 +1,44 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../api"; // ✅ NEW
 
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    // 🔐 FRONTEND PASSWORD VALIDATION
-    if (password.length < 8) {
-      alert("Password must be at least 8 characters");
+    if (!email) {
+      setMessage("Please enter your email");
       return;
     }
 
+    if (password.length < 8) {
+      setMessage("Password must be at least 8 characters");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      await axios.post("http://localhost:5000/api/auth/signup", {
+      await axios.post(`${API_URL}/signup`, {
         email,
         password,
       });
 
-      alert("Signup successful");
-      navigate("/");
+      setMessage("Signup successful 🎉");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+
     } catch (error) {
-      alert(error.response?.data?.message || "Signup failed");
+      setMessage(error.response?.data?.message || "Signup failed");
+      setIsLoading(false);
     }
   };
 
@@ -34,6 +49,8 @@ function Signup() {
       {/* Email */}
       <input
         placeholder="Enter your email"
+        type="email"
+        value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
 
@@ -41,22 +58,37 @@ function Signup() {
       <input
         placeholder="Create password"
         type="password"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      {/* ✅ Use class instead of inline style */}
       <p className="hint">
         Must be 8+ chars, include uppercase, lowercase & number
       </p>
 
       {/* Button */}
-      <button onClick={handleSignup}>Create Account</button>
+      <button 
+        onClick={handleSignup}
+        disabled={isLoading}
+        style={{ 
+          opacity: isLoading ? 0.7 : 1, 
+          cursor: isLoading ? "not-allowed" : "pointer" 
+        }}
+      >
+        {isLoading ? "Creating..." : "Create Account"}
+      </button>
+
+      {/* Message */}
+      {message && (
+        <p className={message.includes("successful") ? "success" : "error"}>
+          {message}
+        </p>
+      )}
+
+      <br />
 
       {/* Navigation */}
-      <p
-        className="link"
-        onClick={() => navigate("/")}
-      >
+      <p className="link" onClick={() => navigate("/")}>
         Already have an account? Login
       </p>
     </div>

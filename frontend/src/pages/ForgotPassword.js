@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../api"; // ✅ NEW
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // ✨ NEW: Loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // ✨ NEW: Auto-clear error messages when the user starts typing again
+  // Clear error message when typing
   useEffect(() => {
     if (message && !message.includes("sent")) {
       setMessage("");
     }
-  }, [email, message]);
+  }, [email]);
 
   const handleForgot = async () => {
     if (!email) {
@@ -22,23 +23,27 @@ function ForgotPassword() {
       return;
     }
 
-    setIsLoading(true); // ✨ Lock the button
+    setIsLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/forgot-password", {
+      await axios.post(`${API_URL}/forgot-password`, {
         email,
       });
 
       setMessage("If this email exists, a reset link has been sent. 📧");
-      setEmail(""); // ✨ NEW: Clear the input after success
+      setEmail("");
+
     } catch (error) {
-      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+      setMessage(
+        error.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
     } finally {
-      setIsLoading(false); // ✨ Unlock the button whether success or fail
+      setIsLoading(false);
     }
   };
 
-  // ✨ NEW: Listen for "Enter" key press
+  // Enter key support
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleForgot();
@@ -49,7 +54,6 @@ function ForgotPassword() {
     <div className="container">
       <h2>GVS Password Reset</h2>
 
-      {/* Email */}
       <input
         type="email"
         placeholder="Enter your registered email"
@@ -58,20 +62,18 @@ function ForgotPassword() {
         onKeyDown={handleKeyDown}
       />
 
-      {/* Button (With dynamic loading state) */}
-      <button 
+      <button
         onClick={handleForgot}
         disabled={isLoading}
-        style={{ 
-          opacity: isLoading ? 0.7 : 1, 
+        style={{
+          opacity: isLoading ? 0.7 : 1,
           cursor: isLoading ? "not-allowed" : "pointer",
-          marginTop: "10px"
+          marginTop: "10px",
         }}
       >
         {isLoading ? "Sending..." : "Send Reset Link"}
       </button>
 
-      {/* Message */}
       {message && (
         <p className={message.includes("sent") ? "success" : "error"}>
           {message}
@@ -80,7 +82,6 @@ function ForgotPassword() {
 
       <br />
 
-      {/* Back */}
       <p className="link" onClick={() => navigate("/")}>
         Back to Login
       </p>

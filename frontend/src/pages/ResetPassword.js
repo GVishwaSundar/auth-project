@@ -1,32 +1,33 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import API_URL from "../api"; // ✅ NEW
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // ✨ NEW: Loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const token = searchParams.get("token");
 
-  // 🔐 Check for token on load
+  // 🔐 Check token
   useEffect(() => {
     if (!token) {
       setMessage("Invalid or missing reset link");
     }
   }, [token]);
 
-  // ✨ NEW: Auto-clear error messages when the user starts typing again
+  // Clear error when typing
   useEffect(() => {
     if (message && !message.includes("successful") && token) {
       setMessage("");
     }
-  }, [newPassword, message, token]);
+  }, [newPassword]);
 
   const handleReset = async () => {
-    if (!token) return; // Prevent submission if no token
+    if (!token) return;
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -37,29 +38,32 @@ function ResetPassword() {
       return;
     }
 
-    setIsLoading(true); // ✨ Lock the button
+    setIsLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/auth/reset-password", {
+      await axios.post(`${API_URL}/reset-password`, { // ✅ UPDATED
         token,
         newPassword,
       });
 
       setMessage("Password reset successful 🎉");
-      setNewPassword(""); // ✨ NEW: Clear input on success
+      setNewPassword("");
 
       setTimeout(() => {
         navigate("/");
       }, 2000);
 
     } catch (error) {
-      setMessage(error.response?.data?.message || "Something went wrong. Please try again.");
+      setMessage(
+        error.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
     } finally {
-      setIsLoading(false); // ✨ Unlock the button whether success or fail
+      setIsLoading(false);
     }
   };
 
-  // ✨ NEW: Listen for "Enter" key press
+  // Enter key support
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleReset();
@@ -70,26 +74,24 @@ function ResetPassword() {
     <div className="container">
       <h2>GVS Reset Password</h2>
 
-      {/* Password */}
       <input
         type="password"
         placeholder="Enter new password"
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
         onKeyDown={handleKeyDown}
-        disabled={!token || isLoading} // ✨ NEW: Disable input if no token or loading
+        disabled={!token || isLoading}
       />
 
       <p className="hint">
         Must be 8+ chars, include uppercase, lowercase & number
       </p>
 
-      {/* Button (With dynamic loading state) */}
-      <button 
-        onClick={handleReset} 
+      <button
+        onClick={handleReset}
         disabled={!token || isLoading}
-        style={{ 
-          opacity: (!token || isLoading) ? 0.7 : 1, 
+        style={{
+          opacity: (!token || isLoading) ? 0.7 : 1,
           cursor: (!token || isLoading) ? "not-allowed" : "pointer",
           marginTop: "10px"
         }}
@@ -97,7 +99,6 @@ function ResetPassword() {
         {isLoading ? "Updating..." : "Update Password"}
       </button>
 
-      {/* Message */}
       {message && (
         <p className={message.includes("successful") ? "success" : "error"}>
           {message}
@@ -106,7 +107,6 @@ function ResetPassword() {
 
       <br />
 
-      {/* Back */}
       <p className="link" onClick={() => navigate("/")}>
         Back to Login
       </p>

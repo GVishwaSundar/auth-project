@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../api"; // ✅ NEW
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // ✨ NEW: Loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -19,7 +20,7 @@ function Login() {
     }
   }, [navigate]);
 
-  // ✨ NEW: Auto-clear error messages when the user starts typing again
+  // ✨ Clear error message when typing
   useEffect(() => {
     if (message && !message.includes("successful")) {
       setMessage("");
@@ -37,10 +38,10 @@ function Login() {
       return;
     }
 
-    setIsLoading(true); // ✨ Lock the button
+    setIsLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post(`${API_URL}/login`, {
         email,
         password,
       });
@@ -54,11 +55,11 @@ function Login() {
 
     } catch (error) {
       setMessage(error.response?.data?.message || "Login failed. Please try again.");
-      setIsLoading(false); // ✨ Unlock the button on failure
+      setIsLoading(false);
     }
   };
 
-  // ✨ NEW: Listen for "Enter" key press
+  // Enter key support
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleLogin();
@@ -69,7 +70,6 @@ function Login() {
     <div className="container">
       <h2>GVS Login</h2>
 
-      {/* Email */}
       <input
         placeholder="Enter your email"
         type="email"
@@ -78,7 +78,6 @@ function Login() {
         onKeyDown={handleKeyDown}
       />
 
-      {/* Password */}
       <input
         placeholder="Enter password"
         type="password"
@@ -89,7 +88,6 @@ function Login() {
 
       <p className="hint">Minimum 8 characters required</p>
 
-      {/* Button (With dynamic loading state) */}
       <button 
         onClick={handleLogin} 
         disabled={isLoading}
@@ -101,7 +99,6 @@ function Login() {
         {isLoading ? "Logging in..." : "Login"}
       </button>
 
-      {/* Message */}
       {message && (
         <p className={message.includes("successful") ? "success" : "error"}>
           {message}
@@ -110,13 +107,13 @@ function Login() {
 
       <br />
 
-      {/* Google Login (Centered perfectly) */}
-      <div style={{ display: "flex", justifyContent: "center", margin: "10px 0" }}>
+      {/* ✅ GOOGLE LOGIN UPDATED */}
+      <div className="google-btn">
         <GoogleLogin
           onSuccess={async (res) => {
             try {
               const response = await axios.post(
-                "http://localhost:5000/api/auth/google-login",
+                `${API_URL}/google-login`, // ✅ UPDATED
                 { token: res.credential }
               );
 
@@ -132,7 +129,6 @@ function Login() {
 
       <br />
 
-      {/* Navigation */}
       <p className="link" onClick={() => navigate("/signup")}>
         Don't have an account? Signup
       </p>
