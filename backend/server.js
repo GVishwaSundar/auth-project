@@ -5,32 +5,49 @@ require("dotenv").config();
 
 const app = express();
 
-// ✅ FIXED CORS
-app.use(cors({
-  origin: "https://auth-project-orcin.vercel.app",
+/* ================= CORS FIX (FINAL) ================= */
+const allowedOrigins = [
+  "https://auth-project-orcin.vercel.app",
+  "http://localhost:3000"
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
-}));
+};
 
-app.options("*", cors());
+app.use(cors(corsOptions));
 
-// Middleware
+/* ✅ IMPORTANT FIX (no '*' crash) */
+app.options("/*", cors(corsOptions));
+
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
 
-// Routes
+/* ================= ROUTES ================= */
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
 
-// Root route
+/* ================= ROOT ================= */
 app.get("/", (req, res) => {
   res.send("🚀 GVS Backend API is running...");
 });
 
-// DB
+/* ================= DB ================= */
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.log("❌ DB Error:", err.message));
 
-// Server
-const PORT = process.env.PORT || 5000;
+/* ================= SERVER ================= */
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
