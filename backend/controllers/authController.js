@@ -11,13 +11,22 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // Password regex
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-// Email transporter
+// ================= EMAIL TRANSPORTER (IMPROVED) =================
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+// Verify transporter (🔥 important for production)
+transporter.verify((error, success) => {
+  if (error) {
+    console.log("❌ EMAIL CONFIG ERROR:", error);
+  } else {
+    console.log("✅ Email server is ready");
+  }
 });
 
 
@@ -45,6 +54,7 @@ exports.signup = async (req, res) => {
     res.status(201).json({ message: "User registered successfully" });
 
   } catch (error) {
+    console.log("❌ SIGNUP ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -74,19 +84,23 @@ exports.login = async (req, res) => {
     res.json({ message: "Login successful", token });
 
   } catch (error) {
+    console.log("❌ LOGIN ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
 
-// ================= FORGOT PASSWORD =================
+// ================= FORGOT PASSWORD (🔥 FIXED + DEBUG) =================
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
+    console.log("📩 Forgot request for:", email);
+
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log("⚠️ User not found (safe response)");
       return res.json({
         message: "If this email exists, a reset link has been sent",
       });
@@ -99,19 +113,33 @@ exports.forgotPassword = async (req, res) => {
 
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset?token=${token}`;
+    // ✅ PRODUCTION URL FIXED
+    const resetLink = `https://auth-project-orcin.vercel.app/reset?token=${token}`;
 
-    await transporter.sendMail({
+    console.log("🔗 Reset Link:", resetLink);
+
+    // ✅ SEND EMAIL WITH FULL DEBUG
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset",
-      text: `Click to reset password:\n${resetLink}`,
-    });
+      html: `
+        <h3>Password Reset</h3>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetLink}">${resetLink}</a>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("✅ EMAIL SENT:", info.response);
 
     res.json({
       message: "If this email exists, a reset link has been sent",
     });
 
   } catch (error) {
+    console.log("❌ EMAIL ERROR FULL:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -146,6 +174,7 @@ exports.resetPassword = async (req, res) => {
     res.json({ message: "Password reset successful" });
 
   } catch (error) {
+    console.log("❌ RESET ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -182,6 +211,7 @@ exports.googleLogin = async (req, res) => {
     });
 
   } catch (error) {
+    console.log("❌ GOOGLE LOGIN ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };
