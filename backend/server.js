@@ -5,6 +5,17 @@ require("dotenv").config();
 
 const app = express();
 
+/* ================= ENV VALIDATION ================= */
+const requiredEnvVars = ["RESEND_API_KEY", "MONGO_URI", "JWT_SECRET"];
+const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
+
+if (missingEnvVars.length > 0) {
+  console.error(
+    `Missing required environment variable(s): ${missingEnvVars.join(", ")}`
+  );
+  process.exit(1);
+}
+
 /* ================= CORS FIX (FINAL) ================= */
 const allowedOrigins = [
   "https://auth-project-orcin.vercel.app",
@@ -27,9 +38,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-/* ✅ IMPORTANT FIX (no '*' crash) */
-app.options("/*", cors(corsOptions));
 
 /* ================= MIDDLEWARE ================= */
 app.use(express.json());
