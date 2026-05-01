@@ -5,9 +5,9 @@ require("dotenv").config();
 
 const app = express();
 
-// 🔥 CORS CONFIG (UPDATED)
+// 🔥 CORS CONFIG
 app.use(cors({
-  origin: "*", // allow all (easy for deployment)
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -15,14 +15,14 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
+// ✅ ROOT ROUTE (MOVE THIS ABOVE authRoutes)
+app.get("/", (req, res) => {
+  res.send("🚀 GVS Backend API is running...");
+});
+
 // Routes
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
-
-// Test route
-app.get("/", (req, res) => {
-  res.send("API is running...");
-});
 
 // ✅ CONNECT DB
 mongoose.connect(process.env.MONGO_URI)
