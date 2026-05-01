@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import API_URL from "../api"; // ✅ NEW
+import API_URL from "../api";
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -19,11 +19,12 @@ function ResetPassword() {
     }
   }, [token]);
 
-  // Clear error when typing
+  // ✨ FIXED: Clear error when typing (ESLint handled)
   useEffect(() => {
     if (message && !message.includes("successful") && token) {
       setMessage("");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newPassword]);
 
   const handleReset = async () => {
@@ -41,7 +42,7 @@ function ResetPassword() {
     setIsLoading(true);
 
     try {
-      await axios.post(`${API_URL}/reset-password`, { // ✅ UPDATED
+      await axios.post(`${API_URL}/reset-password`, {
         token,
         newPassword,
       });

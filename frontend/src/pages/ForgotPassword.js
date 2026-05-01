@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../api"; // ✅ NEW
+import API_URL from "../api";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -10,11 +10,12 @@ function ForgotPassword() {
 
   const navigate = useNavigate();
 
-  // Clear error message when typing
+  // ✨ FIXED: Clear error message when typing (ESLint handled)
   useEffect(() => {
     if (message && !message.includes("sent")) {
       setMessage("");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
   const handleForgot = async () => {

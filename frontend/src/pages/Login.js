@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../api"; // ✅ NEW
+import API_URL from "../api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -20,11 +20,12 @@ function Login() {
     }
   }, [navigate]);
 
-  // ✨ Clear error message when typing
+  // ✨ FIXED: Clear error message when typing (ESLint handled)
   useEffect(() => {
     if (message && !message.includes("successful")) {
       setMessage("");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email, password]);
 
   // 🔐 LOGIN FUNCTION
@@ -107,13 +108,13 @@ function Login() {
 
       <br />
 
-      {/* ✅ GOOGLE LOGIN UPDATED */}
+      {/* Google Login */}
       <div className="google-btn">
         <GoogleLogin
           onSuccess={async (res) => {
             try {
               const response = await axios.post(
-                `${API_URL}/google-login`, // ✅ UPDATED
+                `${API_URL}/google-login`,
                 { token: res.credential }
               );
 
