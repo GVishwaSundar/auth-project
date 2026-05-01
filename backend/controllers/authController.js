@@ -3,11 +3,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-// ✅ RESEND
+// ✅ RESEND (FINAL SETUP)
 const { Resend } = require("resend");
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Google OAuth
 const { OAuth2Client } = require("google-auth-library");
@@ -103,20 +101,14 @@ exports.forgotPassword = async (req, res) => {
 
     console.log("🔗 Reset Link:", resetLink);
 
-    // ❗ CHECK API KEY
-    if (!resend) {
-      console.log("❌ RESEND API KEY NOT FOUND");
-      return res.status(500).json({ error: "Email service not configured" });
-    }
-
-    // ✅ SEND EMAIL
+    // ✅ SEND EMAIL USING RESEND
     const response = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "onboarding@resend.dev",   // ✅ correct
       to: email,
       subject: "Password Reset",
       html: `
         <h3>Password Reset</h3>
-        <p>Click below to reset your password:</p>
+        <p>Click the link below to reset your password:</p>
         <a href="${resetLink}">${resetLink}</a>
       `,
     });
