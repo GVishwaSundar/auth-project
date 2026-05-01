@@ -5,9 +5,23 @@ require("dotenv").config();
 
 const app = express();
 
-// 🔥 CORS CONFIG
+// ✅ FIXED CORS CONFIG
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://auth-project-orcin.vercel.app"
+];
+
 app.use(cors({
-  origin: "*",
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -15,7 +29,7 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
-// ✅ ROOT ROUTE (MOVE THIS ABOVE authRoutes)
+// ✅ ROOT ROUTE
 app.get("/", (req, res) => {
   res.send("🚀 GVS Backend API is running...");
 });
