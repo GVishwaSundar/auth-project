@@ -1,0 +1,197 @@
+/* 🔥 GLOBAL RESET */
+* {
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+/* 🌌 BACKGROUND */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+  position: relative;
+}
+
+/* 🌟 BACKGROUND GLOW EFFECT */
+body::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: #00c6ff;
+  filter: blur(120px);
+  opacity: 0.2;
+  top: 10%;
+  left: 10%;
+  z-index: 0;
+}
+
+/* 🔥 MAIN CARD */
+.container {
+  width: 360px;
+  padding: 40px 30px;
+
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+
+  text-align: center;
+  color: white;
+
+  position: relative;
+  z-index: 1;
+
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* ✨ HOVER GLOW */
+.container:hover {
+  box-shadow: 0 0 30px rgba(0, 198, 255, 0.25),
+              0 15px 35px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* 🎬 ANIMATION */
+@keyframes popIn {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 🏷️ TITLE */
+.container h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  background: linear-gradient(to right, #ffffff, #a3a3a3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 🔹 INPUT */
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+
+  outline: none;
+  font-size: 15px;
+}
+
+/* Placeholder */
+input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+/* Focus */
+input:focus {
+  border-color: rgba(255,255,255,0.6);
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+/* 🔹 BUTTON */
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  background-size: 200% auto;
+
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Hover */
+button:hover {
+  background-position: right center;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 114, 255, 0.4);
+}
+
+/* Click */
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3);
+}
+
+/* 🔹 GOOGLE BUTTON WRAPPER */
+.google-btn {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+/* 🔹 LINKS */
+.link {
+  display: inline-block;
+  margin-top: 15px;
+  color: #00c6ff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.link:hover {
+  color: white;
+  text-shadow: 0 0 8px rgba(0,198,255,0.6);
+}
+
+/* 🔹 MESSAGES */
+.success, .error {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Success */
+.success {
+  background: rgba(0, 255, 174, 0.1);
+  border: 1px solid rgba(0, 255, 174, 0.3);
+  color: #00ffae;
+}
+
+/* Error */
+.error {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+}
+
+/* 🔹 PASSWORD HINT */
+.hint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-top: -5px;
+  margin-bottom: 10px;
+  text-align: left;
+  padding-left: 5px;
+}
