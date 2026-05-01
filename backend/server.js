@@ -5,9 +5,15 @@ require("dotenv").config();
 
 const app = express();
 
+// 🔥 CORS CONFIG (UPDATED)
+app.use(cors({
+  origin: "*", // allow all (easy for deployment)
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 // Middleware
 app.use(express.json());
-app.use(cors());
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
@@ -18,7 +24,7 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// ✅ CONNECT DB (FIXED)
+// ✅ CONNECT DB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.log("❌ DB Error:", err.message));
