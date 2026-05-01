@@ -13,7 +13,9 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 // ================= EMAIL TRANSPORTER (IMPROVED) =================
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // REQUIRED for production
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
